@@ -30,11 +30,13 @@ jobs:
               id: changelog
               run: |
                 if [ -f CHANGELOG.md ]; then
-                    CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+                    cat CHANGELOG.md > changelog.txt
                 else
-                    CHANGELOG_CONTENT="Sem changelog."
+                    echo "Sem changelog." > changelog.txt
                 fi
-                echo "body=$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+                echo "body<<EOF" >> $GITHUB_OUTPUT
+                cat changelog.txt >> $GITHUB_OUTPUT
+                echo "EOF" >> $GITHUB_OUTPUT
 
             - name: Criar Release
               uses: actions/create-release@v1
