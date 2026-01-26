@@ -1,0 +1,47 @@
+name: Criar release do Core
+
+# Roda quando houver push no arquivo VERSION
+on:
+    push:
+        paths:
+            - "VERSION"
+        branches:
+            - main  # ou sua branch principal
+
+jobs:
+    release-core:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Ler versão do core
+              id: version
+              run: |
+                CODENAME=$(awk '{print $1}' VERSION)
+                VERSION=$(awk '{print $2}' VERSION)
+                echo "Codename: $CODENAME, Version: $VERSION"
+                echo "codename=$CODENAME" >> $GITHUB_OUTPUT
+                echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+            - name: Ler CHANGELOG
+              id: changelog
+              run: |
+                if [ -f CHANGELOG ]; then
+                    CHANGELOG_CONTENT=$(cat CHANGELOG)
+                else
+                    CHANGELOG_CONTENT="Sem changelog."
+                fi
+                echo "body=$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+
+            - name: Criar Release
+              uses: actions/create-release@v1
+              with:
+                tag_name: ${{ steps.version.outputs.version }}
+                release_name: "${{ steps.version.outputs.codename }} ${{ steps.version.outputs.version }}"
+                body: ${{ steps.changelog.outputs.body }}
+                draft: false
+                prerelease: false
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
