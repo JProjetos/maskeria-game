@@ -30,7 +30,7 @@ jobs:
               id: changelog
               run: |
                 if [ -f CHANGELOG ]; then
-                    CHANGELOG_CONTENT=$(cat CHANGELOG)
+                    CHANGELOG_CONTENT=$(cat CHANGELOG.md)
                 else
                     CHANGELOG_CONTENT="Sem changelog."
                 fi
