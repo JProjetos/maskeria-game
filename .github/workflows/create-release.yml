@@ -51,7 +51,5 @@ jobs:
         with:
           token: ${{ secrets.PAT_GITHUB_TOKEN }}
           repository: JProjetos/maskeria
-          workflow: "update-version.yml"
-          ref: main
-          inputs: |
-            core_version: ${{ steps.version.outputs.version }}
+          event-type: core-release
+          client-payload: '{"core_version": "${{ steps.version.outputs.version }}"}'
