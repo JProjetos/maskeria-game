@@ -1,4 +1,4 @@
-name: Criar release do Core
+name: Criar release do engine
 
 on:
   push:
@@ -9,13 +9,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  release-core:
+  release-engine:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Ler versão do core
+      - name: Ler versão do engine
         id: version
         run: |
           CODENAME=$(awk '{print $1}' VERSION)
@@ -35,7 +35,7 @@ jobs:
           cat changelog.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Criar Release do Core
+      - name: Criar Release do engine
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.version.outputs.version }}
@@ -45,11 +45,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
-
-      - name: Acionar workflow do Online
-        uses: peter-evans/repository-dispatch@v4
-        with:
-          token: ${{ secrets.PAT_GITHUB_TOKEN }}
-          repository: JProjetos/maskeria
-          event-type: core-release
-          client-payload: '{"core_version": "${{ steps.version.outputs.version }}"}'
