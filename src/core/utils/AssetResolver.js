@@ -1,28 +1,52 @@
+import { PathResolver } from "./PathResolver.js";
+
 export class AssetResolver {
 
-    static base = new URL("/", window.location.origin);
+    static cache = new Map();
 
-    static setBase(root) {
-        if (!root.endsWith("/")) root += "/";
-        this.base = new URL(root, window.location.origin);
+    static loadImage(type, file) {
+        const key = `${type}:${file}`;
+
+        if (this.cache.has(key))
+            return this.cache.get(key);
+
+        const img = new Image();
+        img.src = PathResolver.from(type, file);
+
+        this.cache.set(key, img);
+        return img;
     }
 
-    static resolve(path) {
-        return new URL(path, this.base).href;
+    static async preloadImage(type, file) {
+        const key = `${type}:${file}`;
+
+        if (this.cache.has(key))
+            return this.cache.get(key);
+
+        const img = new Image();
+        img.src = PathResolver.from(type, file);
+
+        await new Promise((res, rej) => {
+            img.onload = res;
+            img.onerror = rej;
+        });
+
+        this.cache.set(key, img);
+        return img;
     }
 
-    static paths = {
-        components: "components/",
-        assets: "game/assets/",
-        rootStyles: "styles/", // pasta de estilos das páginas do root
-        styles: "game/src/styles/", // pasta de estilos do jogo
-        core: "game/src/core",
-        public: "public/"
-    };
+    static loadAudio(type, file) {
+        const key = `${type}:${file}`;
 
-    static from(type, file) {
-        if (!this.paths[type]) throw new Error(`Tipo inválido: ${type}`);
-        return this.resolve(this.paths[type] + file);
+        if (this.cache.has(key))
+            return this.cache.get(key);
+
+        const audio = new Audio(PathResolver.from(type, file));
+        this.cache.set(key, audio);
+        return audio;
     }
 
+    static get(type, file) {
+        return this.cache.get(`${type}:${file}`);
+    }
 }
