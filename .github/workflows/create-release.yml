@@ -46,10 +46,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
 
+      - name: Obter hash do commit atual
+        id: commit
+        run: echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
       - name: Acionar workflow do Online
         uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.PAT_GITHUB_TOKEN }}
           repository: JProjetos/maskeria
           event-type: game-release
-          client-payload: '{"game_version": "${{ steps.version.outputs.version }}"}'
+          client-payload: |
+            {
+              "game_version": "${{ steps.version.outputs.version }}",
+              "commit_hash": "${{ steps.commit.outputs.hash }}"
+            }
