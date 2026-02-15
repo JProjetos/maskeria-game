@@ -44,7 +44,7 @@ export class MenuPanel extends Panel {
                 }
             },
             {
-                text: "Options",
+                text: "Opções",
                 class: "options",
                 onClick: () => {
                     this.bus.emit(`${this.namespace}:options`)
@@ -79,6 +79,7 @@ export class MenuPanel extends Panel {
     }   
     
     unmount() {
-        this.$root.off(this.namespace);
+        this.$root.removeClass(this.namespace);
+        this.$root.html("");
     }
 }

@@ -6,14 +6,14 @@ export class SceneManager {
         this.next = null;
     }
 
-    change(scene) {
+    setNext(scene) {
         if(!(scene instanceof Scene))
             return;
 
         this.next = scene;
     }
 
-    applyChange() {
+    change() {
         if(!this.next) return;
 
         this.current?.exit();

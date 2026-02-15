@@ -1,8 +1,8 @@
 import { EventBus } from "./core/utils/EventBus.js";
 import { SceneManager } from "./core/utils/SceneManager.js";
 import { Renderer } from "./render/Renderer.js";
-import { MenuScene } from "./scenes/MenuScene.js";
 import { GamePathResolver } from "./core/utils/GamePathResolver.js";
+import { SceneFactory } from "./core/utils/SceneFactory.js";
 
 export class Game {
     constructor({ canvasSelector = "#canvas", uiRootSelector = "#ui" }) {
@@ -11,13 +11,7 @@ export class Game {
 
         this.bus = new EventBus();
         this.sm = new SceneManager();
-        this.renderer = new Renderer(canvas);
-
-        this.firstScene = new MenuScene({
-            bus: this.bus,
-            renderer: this.renderer,
-            $uiRoot: this.$uiRoot
-        })
+        this.renderer = new Renderer(this.canvas);
 
         this.lastTime = 0;
         this.loop = this.loop.bind(this);
@@ -33,19 +27,47 @@ export class Game {
     async boot() {
         await Game.getVersion();
 
-        this.bus.on("scene:change", scene => {
-            this.sm.change(scene);
+        this.bus.on("scene:set-next", (scene) => {
+            this.sm.setNext(scene);
         });
 
-        this.renderer.resize(this.$uiRoot.width(), this.$uiRoot.height());
-        $(window).on("resize", () => {
-            this.renderer.resize(this.$uiRoot.width(), this.$uiRoot.height());
+        this.bus.on("scene:change", () => {
+            this.sm.change();
+        });
+
+        this.bus.on("scene:start", async ({ scene, options = {} }) => {
+
+            const nextScene = await SceneFactory.createScene(
+                scene,
+                {
+                    game: this,
+                    bus: this.bus,
+                    renderer: this.renderer,
+                    panels: [],
+                    $uiRoot: this.$uiRoot
+                },
+                options
+            );
+
+            this.bus.emit("scene:set-next", nextScene);
+            this.bus.emit("scene:change");
+        });
+
+        this.bus.on("window:resize", () => {
+            let resizeTimeout;
+
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.renderer.resize(this.$uiRoot.width(), this.$uiRoot.height());
+            }, 100);
         })
 
-        this.sm.change(
-            this.firstScene
-        )
-        this.sm.applyChange();
+        this.bus.emit("window:resize");
+        $(window).on("resize", () => {
+            this.bus.emit("window:resize");
+        })
+
+        this.bus.emit("scene:start", { scene: "MenuScene" });
     }
 
     loop(time) {
@@ -66,7 +88,7 @@ export class Game {
         this.sm.render(this.renderer)
     }
 
-    static async getVersion() {
+    static getVersion() {
         if (Game.version !== null) {
             return Promise.resolve(Game.version);
         }

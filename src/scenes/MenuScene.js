@@ -1,5 +1,4 @@
 import { Scene } from "./Scene.js";
-import { Panel } from "../ui/panels/Panel.js";
 import { MenuPanel } from "../ui/panels/MenuPanel.js";
 import { GameAssetResolver } from "../core/utils/GameAssetResolver.js";
 import { CSSFileLoader } from "../core/utils/CSSFileLoader.js";
@@ -7,39 +6,56 @@ import { GamePathResolver } from "../core/utils/GamePathResolver.js";
 import { StringCaseFormatter } from "../core/utils/StringCaseFormatter.js";
 
 export class MenuScene extends Scene {
-    constructor({bus, renderer, panels = [], $uiRoot}) {
-        super({bus, renderer, panels, $uiRoot});
+    constructor(env, options) {
+        super(env, options);
     }
 
     enter() {
-        this.addPanel(
-            new MenuPanel({
-                bus: this.bus,
-                $root: this.$uiRoot
-            })
-        )
+        this.menuPanel = new MenuPanel({ 
+            bus: this.bus, 
+            $root: this.$uiRoot 
+        });
 
-        CSSFileLoader.load(GamePathResolver.from("styles", `${StringCaseFormatter.toKebabCase(this.constructor.name)}.css`));
-    }
+        this.addPanel(this.menuPanel);
 
-    addPanel(panel) {
-        if(!(panel instanceof Panel))
-            return;
+        this.handleSingleplayer = () => {
+            this.bus.emit("scene:start", {
+                scene: "gameplay-scene",
+                mode: "singleplayer"
+            });
+        };
 
-        panel.mount();
-        this.panels.push(panel);
+        this.handleMultiplayer = () => {
+            this.bus.emit("scene:start", {
+                scene: "gameplay-scene",
+                mode: "multiplayer"
+            });
+        };
+
+        this.bus.on(`${this.menuPanel.namespace}:singleplayer`, this.handleSingleplayer);
+        this.bus.on(`${this.menuPanel.namespace}:multiplayer`, this.handleMultiplayer);
+
+        CSSFileLoader.load(
+            GamePathResolver.from(
+                "styles",
+                `${StringCaseFormatter.toKebabCase(this.constructor.name)}.css`
+            )
+        );
     }
 
     exit() {
+        this.bus.off(`${this.menuPanel.namespace}:singleplayer`, this.handleSingleplayer);
+        this.bus.off(`${this.menuPanel.namespace}:multiplayer`, this.handleMultiplayer);
+
+        this.renderer.clear();
+
         this.panels.forEach(panel => panel.unmount());
         this.panels = [];
     }
 
-    update(dt) {}
-
     render(renderer) {
-        renderer.drawBackground(
+        renderer.drawBGCover(
             GameAssetResolver.loadImage("assets", "menu/background.jpg")
-        )
+        );
     }
-} 
+}
