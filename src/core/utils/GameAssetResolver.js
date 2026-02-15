@@ -1,6 +1,6 @@
-import { PathResolver } from "./PathResolver.js";
+import { GamePathResolver } from "./GamePathResolver.js";
 
-export class AssetResolver {
+export class GameAssetResolver {
 
     static cache = new Map();
 
@@ -11,7 +11,7 @@ export class AssetResolver {
             return this.cache.get(key);
 
         const img = new Image();
-        img.src = PathResolver.from(type, file);
+        img.src = GamePathResolver.from(type, file);
 
         this.cache.set(key, img);
         return img;
@@ -24,7 +24,7 @@ export class AssetResolver {
             return this.cache.get(key);
 
         const img = new Image();
-        img.src = PathResolver.from(type, file);
+        img.src = GamePathResolver.from(type, file);
 
         await new Promise((res, rej) => {
             img.onload = res;
@@ -41,7 +41,7 @@ export class AssetResolver {
         if (this.cache.has(key))
             return this.cache.get(key);
 
-        const audio = new Audio(PathResolver.from(type, file));
+        const audio = new Audio(GamePathResolver.from(type, file));
         this.cache.set(key, audio);
         return audio;
     }

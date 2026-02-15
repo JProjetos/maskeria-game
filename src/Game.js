@@ -1,19 +1,23 @@
 import { EventBus } from "./core/utils/EventBus.js";
 import { SceneManager } from "./core/utils/SceneManager.js";
-import { Renderer } from "./core/render/Renderer.js";
+import { Renderer } from "./render/Renderer.js";
 import { MenuScene } from "./scenes/MenuScene.js";
-import { PathResolver } from "./core/utils/PathResolver.js";
+import { GamePathResolver } from "./core/utils/GamePathResolver.js";
 
 export class Game {
-    constructor() {
+    constructor({ canvasSelector = "#canvas", uiRootSelector = "#ui" }) {
+        this.canvas = document.querySelector(canvasSelector);
+        this.$uiRoot = $(uiRootSelector);
+
         this.bus = new EventBus();
-
         this.sm = new SceneManager();
-
-        let canvas = document.querySelector("#canvas");
         this.renderer = new Renderer(canvas);
 
-        this.$uiRoot = $("#ui");
+        this.firstScene = new MenuScene({
+            bus: this.bus,
+            renderer: this.renderer,
+            $uiRoot: this.$uiRoot
+        })
 
         this.lastTime = 0;
         this.loop = this.loop.bind(this);
@@ -39,11 +43,7 @@ export class Game {
         })
 
         this.sm.change(
-            new MenuScene({
-                bus: this.bus,
-                renderer: this.renderer,
-                $uiRoot: this.$uiRoot
-            })
+            this.firstScene
         )
         this.sm.applyChange();
     }
@@ -71,7 +71,7 @@ export class Game {
             return Promise.resolve(Game.version);
         }
 
-        return fetch(PathResolver.from("game", "VERSION"))
+        return fetch(GamePathResolver.from("root", "VERSION"))
             .then(res => {
                 if (!res.ok) throw new Error("Falha ao buscar versão local");
                 return res.text();

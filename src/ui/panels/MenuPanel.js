@@ -1,4 +1,4 @@
-import { PathResolver } from "../../core/utils/PathResolver.js";
+import { GamePathResolver } from "../../core/utils/GamePathResolver.js";
 import { Game } from "../../Game.js";
 import { Button } from "../elements/Button.js";
 import { Panel } from "./Panel.js";
@@ -21,7 +21,7 @@ export class MenuPanel extends Panel {
 
         let $logo = $("<img>", {
             class: "logo",
-            src: PathResolver.from("assets", "logo/dark-border.svg")
+            src: GamePathResolver.from("assets", "logo/dark-border.svg")
         })
 
         let $options = $("<div>", {

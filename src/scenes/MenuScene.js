@@ -1,9 +1,9 @@
 import { Scene } from "./Scene.js";
 import { Panel } from "../ui/panels/Panel.js";
 import { MenuPanel } from "../ui/panels/MenuPanel.js";
-import { AssetResolver } from "../core/utils/AssetResolver.js";
+import { GameAssetResolver } from "../core/utils/GameAssetResolver.js";
 import { CSSFileLoader } from "../core/utils/CSSFileLoader.js";
-import { PathResolver } from "../core/utils/PathResolver.js";
+import { GamePathResolver } from "../core/utils/GamePathResolver.js";
 import { StringCaseFormatter } from "../core/utils/StringCaseFormatter.js";
 
 export class MenuScene extends Scene {
@@ -19,7 +19,7 @@ export class MenuScene extends Scene {
             })
         )
 
-        CSSFileLoader.load(PathResolver.from("styles", `${StringCaseFormatter.toKebabCase(this.constructor.name)}.css`));
+        CSSFileLoader.load(GamePathResolver.from("styles", `${StringCaseFormatter.toKebabCase(this.constructor.name)}.css`));
     }
 
     addPanel(panel) {
@@ -39,7 +39,7 @@ export class MenuScene extends Scene {
 
     render(renderer) {
         renderer.drawBackground(
-            AssetResolver.loadImage("assets", "menu/background.jpg")
+            GameAssetResolver.loadImage("assets", "menu/background.jpg")
         )
     }
 } 
