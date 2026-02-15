@@ -1,35 +1,12 @@
-# **⚙️ Grande atualização!**
+# **🧰 Pequena atualização!**
 
-Olá pessoal! Seguindo a tradição nórdica, nomeei a primeira versão da engine *Andhrimnir*, conhecido como o deus da culinária.
+Seguindo a atualização realizada ontem, envio uma pequena atualização de qualidade para o jogo.
 
-## Novidades do Jogo
+## Utilitários
 
-- O menu inicial agora está disponível, apesar de não funcional.
-- As logos do jogo estão disponíveis em:
-    - **Preto**
-    - **Branco**
-    - **Preto com borda branca**
-    - **Branco com borda preta**
+- **PathResolver**: Agora nomeado **``GamePathResolver``**, pois ele usa a pasta de ``maskeria-game`` como root, diferentemente do **``PathResolver``** mais genérico, que está localizado em ``shared/`` do repositório `maskeria`.
+- **AssetResolver**: Agora nomeado **``GameAssetResolver``** para padronizar com a nomenclatura usada em ``GamePathResolver``.
 
-## Novidades da Engine
+## Jogo
 
-### Utilitários
-
-- **AssetResolver:** Agora é responsável por realizar precarregamento de imagens e carregamento de imagens e áudio. Além disso, cria um armazenamento cache desses arquivos, otimizando o processo de obtenção de arquivos.
-- **PathResolver:** Assumiu a função do antigo AssetResolver, corrigindo os caminhos absolutos.
-
-### Cenas (Scenes)
-
-O jogo é baseado em cenas, cada uma com uma lógica diferente. Ou seja, cenas são a unidade mais básica de composição da renderização do jogo, fora o elemento ```<canvas>```.
-
-Sendo assim, criei a classe ```SceneManager```, que é responsável por cuidar da cena que está sendo renderizada.
-
-### Panéis (Panels)
-
-Cada cena possui um conjunto de panels, isto é, grandes blocos de UI, compostos apenas de **elementos DOM**. Os panels não são renderizados como as cenas, mas montados e desmontados, ações que são realizadas de forma única, dada a natureza persistente dos elementos do DOM.
-
-Dessa forma, cada cena é responsável por montar seus panels de acordo com sua lógica, atuando como um **stack**.
-
-### Elementos (Elements)
-
-É uma forma de usar componentes de forma elegante. Os dados são passados para um element e ele é responsável por montá-los em DOM.
+- **Game.js**: Agora possui em seu constructor um objeto que recebe ``canvasSelector`` e ``uiRootSelector``, que permite você selecionar os contâineres de renderização e interface, respectivamente. O padrão usado para o selector é o mesmo de ``document.querySelector()``.
